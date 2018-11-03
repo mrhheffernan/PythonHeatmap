@@ -1,9 +1,11 @@
 from os import listdir
 from os.path import isfile, join
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import gpxpy
 import os
 import glob
+import folium
+
 #import plotly.plotly as py
 #import plotly.io as pio
 
@@ -25,6 +27,8 @@ fig.add_axes(ax)
 all_lat = []
 all_long = []
 
+m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=15)
+
 for activity in data:
     gpx_filename = activity#join(data_path,activity)
     gpx_file = open(gpx_filename, 'r')
@@ -38,6 +42,8 @@ for activity in data:
     #plt.plot(lon, lat, color = 'deepskyblue', lw = 0.2, alpha = 0.8)
     all_lat.append(lat)
     all_long.append(lon)
+    points = zip(lat,lon)
+    folium.PolyLine(points, color="red", weight=2.5, opacity=1).add_to(my_map)
     lat = []
     lon = []
 all_lat = all_lat[0]
@@ -57,58 +63,7 @@ print('min lat',max(all_long))
 #filename = data_path + '.png'
 #plt.savefig(filename, facecolor = fig.get_facecolor(), bbox_inches='tight', pad_inches=0, dpi=300)
 
-
-
-# nyc_london = [ dict(
-#     type = 'scattergeo',
-#     lat = all_lat,
-#     lon = all_long,
-#     mode = 'lines',
-#     line = dict(
-#         width = 2,
-#         color = 'blue',
-#     ),
-# ) ]
-#
-# layout = dict(
-#         title = 'London to NYC Great Circle',
-#         showlegend = False,
-#         geo = dict(
-#             resolution = 50,
-#             showland = True,
-#             showlakes = True,
-#             landcolor = 'rgb(204, 204, 204)',
-#             countrycolor = 'rgb(204, 204, 204)',
-#             lakecolor = 'rgb(255, 255, 255)',
-#             projection = dict( type="equirectangular" ),
-#             coastlinewidth = 2,
-#             lataxis = dict(
-#                 range = [ min_lat, max_lat ],
-#                 showgrid = True,
-#                 tickmode = "linear",
-#                 dtick = 10
-#             ),
-#             lonaxis = dict(
-#                 range = [min_long, max_long],
-#                 showgrid = True,
-#                 tickmode = "linear",
-#                 dtick = 20
-#             ),
-#         )
-#     )
-#
-# fig = dict( data=nyc_london, layout=layout )
-# py.iplot( fig, validate=False, filename='d3-great-circle' )
-
-#pio.write_image(fig, 'images/fig1.png')
-
-
-# Now let's do this in folium
-
-import folium
-
 central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
 
-m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=15)
 m.save('heatmap.html')
