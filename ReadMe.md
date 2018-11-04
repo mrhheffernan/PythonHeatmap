@@ -58,3 +58,6 @@ in return.   - Matthew Heffernan
 This code is built with a combination of original and unlicensed code. Special thanks are due to the developers working to make the FIT file format more accessible, especially Max Candocia whose fit_to_csv code is instrumental and included here. Source: https://maxcandocia.com/article/2017/Sep/22/converting-garmin-fit-to-csv/
 
 Additional thanks are due to the McGill Physics Hackathon 2018, during which I wrote this code while assisting many capable hackers visualize physics concepts. Their dedication and the unlimited coffee were inspirational to the development of this project.
+
+## simple_heatmap.py
+This is a simple heatmap which does not superimpose the tracks on a map, but does provide a simple playground for plotting tracks. This reproduces much of the functionality of some prominent Strava apps, but full resolution is gained for free and is more customizable with matplotlib. Enjoy!
