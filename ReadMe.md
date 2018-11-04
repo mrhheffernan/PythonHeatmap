@@ -60,4 +60,4 @@ This code is built with a combination of original and unlicensed code. Special t
 Additional thanks are due to the McGill Physics Hackathon 2018, during which I wrote this code while assisting many capable hackers visualize physics concepts. Their dedication and the unlimited coffee were inspirational to the development of this project.
 
 ## simple_heatmap.py
-This is a simple heatmap which does not superimpose the tracks on a map, but does provide a simple playground for plotting tracks. This reproduces much of the functionality of some prominent Strava apps, but full resolution is gained for free and is more customizable with matplotlib. Enjoy!
+This is a simple heatmap which does not superimpose the tracks on a map, but does provide a simple playground for plotting tracks. This reproduces much of the functionality of some prominent Strava apps, but full resolution is gained for free and is more customizable with matplotlib. Enjoy! This script will additionally required the matplotlib module.
