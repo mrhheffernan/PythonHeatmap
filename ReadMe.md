@@ -5,6 +5,8 @@ This was a side-project while I helped organize the McGill Physics Hackathon.
 
 If you are interested in physics or programming, hackathons are a great idea. If you're curious about more of my work, the linked pages at mrhheffernan.github.io provide links to more information.
 
+An additional feature is present to color the lines by heart rate, which can be found in the hr_color branch by tjrademaker. The code in that branch also incoporates tcx file support. All original code there is written by tjrademaker and is offered under the MIT License.
+
 ## Getting Started
 
 Download your data as a gpx, csv, or fit file from your provider of choice. Note that extra python packages may be required if you have fit files, as the binary files are not easily readable on all systems. Just download the python files here and run them! This is also written in to be compatible with Python 3.7, certain rewrites will be necessary if using Python2.

@@ -106,19 +106,35 @@ for activity in data:
     lon = []
 
 print('Plotting csv data')
-
+hr = []
 for activity in csvdata:
     csv_filename = activity
     csv_file = pd.read_csv(csv_filename)
     for i in range(len(csv_file)):
         lat.append(csv_file['position_lat'][i])
         lon.append(csv_file['position_long'][i])
-
+        hr.append(csv_file['heart_rate'][i])
     points = zip(lat,lon)
     points = [item for item in zip(lat,lon)]
 
-    folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
+    #color = []
+    #print('heart_rate',csv_file['heart_rate'])
+    #hr = hr / max(hr)
+    #for value in hr:
+    #    if value < 0.2:
+    #        color.append("darkred")
+    #    elif value >= 0.2 and value < 0.4:
+    #        color.append("red")
+    #    elif value >= 0.4 and value < 0.6:
+    #        color.append("lightred")
+    #    elif value >= 0.6 and value < 0.8:
+    #        color.append("lightyellow")
+    #    elif value >= 0.6:
+    #        color.append("yellow")
+
+    folium.PolyLine(points, color=color, weight=2.5, opacity=0.5).add_to(m)
     lat = []
     lon = []
+    hr = []
 
 m.save('heatmap.html')
