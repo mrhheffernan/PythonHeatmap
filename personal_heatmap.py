@@ -3,17 +3,48 @@ import glob
 
 import folium
 import gpxpy
+import tcxparser
+import matplotlib.colors as clrs
 
 import numpy as np
 import pandas as pd
+import matplotlib.cm as cm
 from geopy.geocoders import Nominatim
+
+#### CHANGES FOR MATT ####
+'''
+Imports
+    - tcxparser
+    - matplotlib.colors as clrs
+    - matplotlib.cm as cm
+
+Functions
+    get_color(hr)
+
+Plot points as planes and add heartrate as color value
+
+    for i in range(np.min((len(points),len(hr)+1))-1):
+        plane = [points[i]] + [points[i+1]]
+        folium.PolyLine(plane, color=get_color(hr[i]), weight=2.5, opacity=1).add_to(m)
+
+This made the code about threefold slower.
+
+You're welcome.
+
+'''
+def get_color(hr):
+    # min and max heart rates
+    norm = clrs.Normalize(vmin=100, vmax=200) # Min/max heart rate
+    m = cm.ScalarMappable(norm=norm, cmap='YlOrRd') # Choose colormap (from YeLlow to ReD)
+    rgbs = m.to_rgba(hr)[:-1] # Remove opacity
+    return clrs.rgb2hex(rgbs) # Turn into hex, because folium.Polyline doesn't take rgb
 
 geolocator = Nominatim()
 location = geolocator.geocode("Montreal Quebec") # Change this to change location centering
 lat_check = float(location.raw['lat'])
 lon_check = float(location.raw['lon'])
 
-data = glob.glob('*.gpx')
+data = glob.glob('gpxdata/*.gpx')
 fitdata = glob.glob('*.fit')
 
 if not len(fitdata) == 0:
@@ -24,34 +55,38 @@ if not len(fitdata) == 0:
 
 csvdata = glob.glob('*.csv')
 
-lat = []
-lon = []
-
 all_lat = []
 all_long = []
 
 print('Loading data')
 
 for activity in data:
-    gpx_filename = activity
-    gpx_file = open(gpx_filename, 'r')
+
+    filename = activity[8:-4] #Remove foldername, remove extension
+    
+    gpx_file = open('gpxdata/'+filename+'.gpx', 'r')    
     gpx = gpxpy.parse(gpx_file)
 
+    lat = []
+    lon = []
+    
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
 
+<<<<<<< HEAD
     check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
     check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+=======
+    check1 = np.any(np.isclose(lat, lat_check,atol=0.5))
+    check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
+>>>>>>> master
 
     if check1 and check2 :
         all_lat.append(lat)
         all_long.append(lon)
-
-    lon = []
-    lat = []
 
 for activity in csvdata:
     csv_filename = activity
@@ -92,6 +127,18 @@ for activity in data:
     gpx_file = open(gpx_filename, 'r')
     gpx = gpxpy.parse(gpx_file)
 
+    filename = activity[8:-4]
+
+    print(filename)
+    
+    gpx_file = open('gpxdata/'+filename+'.gpx', 'r')    
+    gpx = gpxpy.parse(gpx_file)
+
+    tcx_file = open('tcxdata/'+filename+'.tcx', 'r')
+    tcx = tcxparser.TCXParser(tcx_file)
+    
+    hr = tcx.hr_values()
+
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
@@ -101,7 +148,14 @@ for activity in data:
     points = zip(lat,lon)
     points = [item for item in zip(lat,lon)]
 
-    folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
+    print(len(points))
+    print(len(hr))
+    print('\n')
+
+    for i in range(np.min((len(points),len(hr)+1))-1):
+        plane = [points[i]] + [points[i+1]]
+        folium.PolyLine(plane, color=get_color(hr[i]), weight=2.5, opacity=1).add_to(m)
+
     lat = []
     lon = []
 
