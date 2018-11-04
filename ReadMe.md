@@ -18,6 +18,11 @@ Certain Python modules are required. They are: numpy, pandas, geopy, folium, gpx
 pip install numpy pandas geopy folium gpxpy fitparse pytz
 ```
 
+Also required prerequisites are GPS tracks. On Strava, these are available for bulk download under settings. If files have been uploaded via Garmin Connect, there may be compressed .fit files in .fit.gz format. To unzip these (at least in linux/unix-based systems):
+```
+gunzip *.fit.gz
+```
+
 ## Running the tests
 
 The heatmap will be output in a html file, which is viewable in a web browser. Currently, there is no native folium support for image exports, so screenshots of relevant areas is the recommended strategy.
