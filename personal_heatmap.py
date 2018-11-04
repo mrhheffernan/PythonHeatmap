@@ -1,34 +1,39 @@
 from os import listdir
 from os.path import isfile, join
-#import matplotlib.pyplot as plt
 import gpxpy
 import os
 import glob
 import folium
+import numpy as np
+from geopy.geocoders import Nominatim
+import fitparse
 
-#import plotly.plotly as py
-#import plotly.io as pio
 
-#data_path = os.path.dirname(os.path.realpath(__file__))
-#data = [f for f in listdir(data_path) if isfile(join(data_path,f))]
+geolocator = Nominatim()
+location = geolocator.geocode("Montreal Quebec")
+lat_check = float(location.raw['lat'])
+lon_check = float(location.raw['lon'])
 
 data = glob.glob('*.gpx')
 
-print('data = ',data)
+fitdata = glob.glob('*.fit')
+
+if not len(fitdata) == 0:
+    print('Converting Garmin FIT files')
+    os.system('python fit_to_csv.py')
+#    directory = os.path.dirname(os.path.abspath(__file__))
+    #os.system('python process_all.py --subject-name="Matt" --fit-source-dir='+directory+' --fit-processed-csv-dir='+directory+' --fit-ignore-splits-and-pylaps --skip-gpx-conversion')
+    #print('Garmin conversion done!')
+
+#print('data = ',data)
 lat = []
 lon = []
-
-# fig = plt.figure(facecolor = '0.05')
-# ax = plt.Axes(fig, [0., 0., 1., 1.], )
-# ax.set_aspect('equal')
-# ax.set_axis_off()
-# fig.add_axes(ax)
 
 all_lat = []
 all_long = []
 
 for activity in data:
-    gpx_filename = activity#join(data_path,activity)
+    gpx_filename = activity
     gpx_file = open(gpx_filename, 'r')
     gpx = gpxpy.parse(gpx_file)
 
@@ -37,11 +42,18 @@ for activity in data:
             for point in segment.points:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
-    all_lat.append(lat)
-    all_long.append(lon)
-    lat = []
-    lon = []
 
+    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5))
+    check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
+
+    if check1 and check2 :
+        all_lat.append(lat)
+        all_long.append(lon)
+
+    lon = []
+    lat = []
+#exit()
+i = 1
 all_lat = all_lat[0]
 all_long = all_long[0]
 
@@ -50,23 +62,13 @@ max_lat = max(all_lat)
 min_long = max(all_long)
 max_long = min(all_long)
 
-#print('all_lat',all_lat[0])
-print('max lat',max(all_lat))
-print('min lat',min(all_lat))
-print('max lat',min(all_long))
-print('min lat',max(all_long))
-#plt.show()
-#filename = data_path + '.png'
-#plt.savefig(filename, facecolor = fig.get_facecolor(), bbox_inches='tight', pad_inches=0, dpi=300)
-
 central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
 
-
-m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=15)
+m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2)
 
 for activity in data:
-    gpx_filename = activity#join(data_path,activity)
+    gpx_filename = activity
     gpx_file = open(gpx_filename, 'r')
     gpx = gpxpy.parse(gpx_file)
 
@@ -75,10 +77,10 @@ for activity in data:
             for point in segment.points:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
-    #plt.plot(lon, lat, color = 'deepskyblue', lw = 0.2, alpha = 0.8)
+
     points = zip(lat,lon)
     points = [item for item in zip(lat,lon)]
-    #print('points =',points)
+
     folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
     lat = []
     lon = []
