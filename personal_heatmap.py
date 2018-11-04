@@ -9,7 +9,7 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 
 geolocator = Nominatim()
-location = geolocator.geocode("Montreal Quebec")
+location = geolocator.geocode("Montreal Quebec") # Change this to change location centering
 lat_check = float(location.raw['lat'])
 lon_check = float(location.raw['lon'])
 
@@ -43,8 +43,8 @@ for activity in data:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
 
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5))
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
+    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
 
     if check1 and check2 :
         all_lat.append(lat)
@@ -61,8 +61,8 @@ for activity in csvdata:
         lat.append(csv_file['position_lat'][i])
         lon.append(csv_file['position_long'][i])
 
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5))
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
+    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
 
     if check1 and check2 :
         all_lat.append(lat)
@@ -83,7 +83,7 @@ central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
 
 print('Initializing map')
-m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2)
+m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2) # Recommended map styles are "Stamen Terrain", "Stamen Toner"
 
 print('Plotting gpx data')
 
