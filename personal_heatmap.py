@@ -40,11 +40,11 @@ def get_color(hr):
     return clrs.rgb2hex(rgbs) # Turn into hex, because folium.Polyline doesn't take rgb
 
 geolocator = Nominatim()
-location = geolocator.geocode("Montreal Quebec") # Change this to change location centering
+location = geolocator.geocode("Montreal Quebec")
 lat_check = float(location.raw['lat'])
 lon_check = float(location.raw['lon'])
 
-data = glob.glob('gpxdata/*.gpx')
+data = glob.glob('../gpxdata/*.gpx')
 fitdata = glob.glob('*.fit')
 
 if not len(fitdata) == 0:
@@ -64,7 +64,7 @@ for activity in data:
 
     filename = activity[8:-4] #Remove foldername, remove extension
     
-    gpx_file = open('gpxdata/'+filename+'.gpx', 'r')    
+    gpx_file = open('../gpxdata/'+filename+'.gpx', 'r')    
     gpx = gpxpy.parse(gpx_file)
 
     lat = []
@@ -76,13 +76,8 @@ for activity in data:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
 
-<<<<<<< HEAD
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-=======
     check1 = np.any(np.isclose(lat, lat_check,atol=0.5))
     check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
->>>>>>> master
 
     if check1 and check2 :
         all_lat.append(lat)
@@ -96,8 +91,8 @@ for activity in csvdata:
         lat.append(csv_file['position_lat'][i])
         lon.append(csv_file['position_long'][i])
 
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5))
+    check2 = np.any(np.isclose(lon, lon_check,atol=0.5))
 
     if check1 and check2 :
         all_lat.append(lat)
@@ -118,23 +113,25 @@ central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
 
 print('Initializing map')
-m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2) # Recommended map styles are "Stamen Terrain", "Stamen Toner"
+m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2)
 
 print('Plotting gpx data')
 
 for activity in data:
     gpx_filename = activity
-    gpx_file = open(gpx_filename, 'r')
-    gpx = gpxpy.parse(gpx_file)
 
     filename = activity[8:-4]
 
-    print(filename)
-    
-    gpx_file = open('gpxdata/'+filename+'.gpx', 'r')    
+    gpx_file = open(gpx_filename, 'r')
     gpx = gpxpy.parse(gpx_file)
 
-    tcx_file = open('tcxdata/'+filename+'.tcx', 'r')
+
+    print(filename)
+    
+    gpx_file = open('../gpxdata/'+filename+'.gpx', 'r')    
+    gpx = gpxpy.parse(gpx_file)
+
+    tcx_file = open('../tcxdata/'+filename+'.tcx', 'r')
     tcx = tcxparser.TCXParser(tcx_file)
     
     hr = tcx.hr_values()
@@ -175,4 +172,4 @@ for activity in csvdata:
     lat = []
     lon = []
 
-m.save('heatmap.html')
+m.save('../heatmap.html')
