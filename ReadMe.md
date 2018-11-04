@@ -31,6 +31,12 @@ The heatmap will be output in a html file, which is viewable in a web browser. C
 
 The Python is designed to run in the same directory as the GPS files, so make sure this is the case.
 
+To run:
+
+```
+python personal_heatmap.py
+```
+
 ## License
 
 Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
