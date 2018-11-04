@@ -1,14 +1,12 @@
-from os import listdir
-from os.path import isfile, join
-import gpxpy
 import os
 import glob
-import folium
-import numpy as np
-from geopy.geocoders import Nominatim
-import fitparse
-import pandas as pd
 
+import folium
+import gpxpy
+
+import numpy as np
+import pandas as pd
+from geopy.geocoders import Nominatim
 
 geolocator = Nominatim()
 location = geolocator.geocode("Montreal Quebec")
@@ -16,24 +14,24 @@ lat_check = float(location.raw['lat'])
 lon_check = float(location.raw['lon'])
 
 data = glob.glob('*.gpx')
-
 fitdata = glob.glob('*.fit')
 
 if not len(fitdata) == 0:
     print('Converting Garmin FIT files')
     os.system('python fit_to_csv.py')
     os.system('mkdir fit_files')
-    os.system('')
+    os.system('mv *.fit ./fit_files')
 
 csvdata = glob.glob('*.csv')
 
-#print('data = ',data)
 lat = []
 lon = []
 
 all_lat = []
 all_long = []
+
 print('Loading data')
+
 for activity in data:
     gpx_filename = activity
     gpx_file = open(gpx_filename, 'r')
@@ -54,7 +52,6 @@ for activity in data:
 
     lon = []
     lat = []
-
 
 for activity in csvdata:
     csv_filename = activity
@@ -74,7 +71,6 @@ for activity in csvdata:
     lon = []
     lat = []
 
-i = 1
 all_lat = all_lat[0]
 all_long = all_long[0]
 
@@ -85,9 +81,12 @@ max_long = min(all_long)
 
 central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
+
 print('Initializing map')
 m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2)
+
 print('Plotting gpx data')
+
 for activity in data:
     gpx_filename = activity
     gpx_file = open(gpx_filename, 'r')
@@ -105,7 +104,9 @@ for activity in data:
     folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
     lat = []
     lon = []
+
 print('Plotting csv data')
+
 for activity in csvdata:
     csv_filename = activity
     csv_file = pd.read_csv(csv_filename)
