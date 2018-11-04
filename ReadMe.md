@@ -27,6 +27,8 @@ gunzip *.fit.gz
 
 The heatmap will be output in a html file, which is viewable in a web browser. Currently, there is no native folium support for image exports, so screenshots of relevant areas is the recommended strategy.
 
+The Python is designed to run in the same directory as the GPS files, so make sure this is the case.
+
 ## License
 
 Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
