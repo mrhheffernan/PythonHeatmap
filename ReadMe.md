@@ -9,6 +9,8 @@ If you are interested in physics or programming, hackathons are a great idea. If
 
 Download your data as a gpx, csv, or fit file from your provider of choice. Note that extra python packages may be required if you have fit files, as the binary files are not easily readable on all systems. Just download the python files here and run them! This is also written in to be compatible with Python 3.7, certain rewrites will be necessary if using Python2.
 
+I'm Montreal based, so the map is currently designed to center on Montreal. To correct for this, change "Montreal Quebec" to your location!
+
 
 ### Prerequisites
 
