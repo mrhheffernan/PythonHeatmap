@@ -24,7 +24,9 @@ The heatmap will be output in a html file, which is viewable in a web browser. C
 
 ## License
 
-Copyright 2018 Matthew Heffernan
+Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
+
+Original Python Copyright 2018 Matthew Heffernan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
