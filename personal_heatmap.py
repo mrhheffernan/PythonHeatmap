@@ -74,11 +74,6 @@ for activity in csvdata:
 all_lat = all_lat[0]
 all_long = all_long[0]
 
-min_lat = min(all_lat)
-max_lat = max(all_lat)
-min_long = max(all_long)
-max_long = min(all_long)
-
 central_long = sum(all_long)/float(len(all_long))
 central_lat = sum(all_lat)/float(len(all_lat))
 
