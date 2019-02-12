@@ -65,3 +65,6 @@ Additional thanks are due to the McGill Physics Hackathon 2018, during which I w
 This is a simple heatmap which does not superimpose the tracks on a map, but does provide a simple playground for plotting tracks. This reproduces much of the functionality of some prominent Strava apps, but full resolution is gained for free and is more customizable with matplotlib. Enjoy! This script will additionally required the matplotlib module.
 
 This doesn't automatically center, but the native zooming interface will allow you to better crop the heatmap for use on social media. The GUI save feature is recommended.
+
+## Upcoming work:
+Add option to plot heatmap in style of: http://qingkaikong.blogspot.com/2016/06/using-folium-3-heatmap.html
