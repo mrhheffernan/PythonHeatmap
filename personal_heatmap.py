@@ -101,6 +101,7 @@ for activity in data:
     lon = []
 
 print('Plotting csv data')
+color = "red"
 hr = []
 for activity in csvdata:
     csv_filename = activity
