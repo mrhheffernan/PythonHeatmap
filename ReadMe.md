@@ -9,7 +9,11 @@ An additional feature is present to color the lines by heart rate, which can be 
 
 ## Getting Started
 
-Download your data as a gpx, csv, or fit file from your provider of choice. Note that extra python packages may be required if you have fit files, as the binary files are not easily readable on all systems. Just download the python files here and run them! This is also written in to be compatible with Python 3.7, certain rewrites will be necessary if using Python2.
+Download your data as a gpx, csv, or fit file from your provider of choice. For advanced users, `selenium_downloader.py` is provided to automate this process. These users will have to specify some paths and have selenium/chromium configured before running the script. Additionally, they will have to supply a file called `login_info.secret`. This file should contain `username,password,athlete_id` and will be read in by `selenium_downloader.py`. Currently, `selenium_downloader.py` may not export all data, but is intended for use for the past 12 months of activities. It sometimes downloads more.
+
+Most users can simply request their data as a download from Strava.
+
+Note that extra python packages may be required if you have fit files, as the binary files are not easily readable on all systems. Just download the python files here and run them! This is also written in to be compatible with Python 3.7, certain rewrites will be necessary if using Python2.
 
 I'm Montreal based, so the map is currently designed to center on Montreal. To correct for this, change "Montreal Quebec" to your location!
 
@@ -67,4 +71,5 @@ This is a simple heatmap which does not superimpose the tracks on a map, but doe
 This doesn't automatically center, but the native zooming interface will allow you to better crop the heatmap for use on social media. The GUI save feature is recommended.
 
 ## Upcoming work:
-Add option to plot heatmap in style of: http://qingkaikong.blogspot.com/2016/06/using-folium-3-heatmap.html
+..*Add option to plot heatmap in style of: http://qingkaikong.blogspot.com/2016/06/using-folium-3-heatmap.html
+..*Broadening the scope of `selenium_downloader.py`
