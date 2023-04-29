@@ -9,20 +9,22 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 
 geolocator = Nominatim()
-location = geolocator.geocode("Montreal Quebec") # Change this to change location centering
-lat_check = float(location.raw['lat'])
-lon_check = float(location.raw['lon'])
+location = geolocator.geocode(
+    "Montreal Quebec"
+)  # Change this to change location centering
+lat_check = float(location.raw["lat"])
+lon_check = float(location.raw["lon"])
 
-data = glob.glob('*.gpx')
-fitdata = glob.glob('*.fit')
+data = glob.glob("*.gpx")
+fitdata = glob.glob("*.fit")
 
 if not len(fitdata) == 0:
-    print('Converting Garmin FIT files')
-    os.system('python fit_to_csv.py')
-    os.system('mkdir fit_files')
-    os.system('mv *.fit ./fit_files')
+    print("Converting Garmin FIT files")
+    os.system("python fit_to_csv.py")
+    os.system("mkdir fit_files")
+    os.system("mv *.fit ./fit_files")
 
-csvdata = glob.glob('*.csv')
+csvdata = glob.glob("*.csv")
 
 lat = []
 lon = []
@@ -30,11 +32,11 @@ lon = []
 all_lat = []
 all_long = []
 
-print('Loading data')
+print("Loading data")
 
 for activity in data:
     gpx_filename = activity
-    gpx_file = open(gpx_filename, 'r')
+    gpx_file = open(gpx_filename, "r")
     gpx = gpxpy.parse(gpx_file)
 
     for track in gpx.tracks:
@@ -43,10 +45,14 @@ for activity in data:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
 
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check1 = np.any(
+        np.isclose(lat, lat_check, atol=0.5)
+    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check2 = np.any(
+        np.isclose(lon, lon_check, atol=0.5)
+    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
 
-    if check1 and check2 :
+    if check1 and check2:
         all_lat.append(lat)
         all_long.append(lon)
 
@@ -58,13 +64,17 @@ for activity in csvdata:
     csv_file = pd.read_csv(csv_filename)
 
     for i in range(len(csv_file)):
-        lat.append(csv_file['position_lat'][i])
-        lon.append(csv_file['position_long'][i])
+        lat.append(csv_file["position_lat"][i])
+        lon.append(csv_file["position_long"][i])
 
-    check1 =  np.any(np.isclose(lat,lat_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(np.isclose(lon, lon_check,atol=0.5)) # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check1 = np.any(
+        np.isclose(lat, lat_check, atol=0.5)
+    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    check2 = np.any(
+        np.isclose(lon, lon_check, atol=0.5)
+    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
 
-    if check1 and check2 :
+    if check1 and check2:
         all_lat.append(lat)
         all_long.append(lon)
 
@@ -74,17 +84,19 @@ for activity in csvdata:
 all_lat = all_lat[0]
 all_long = all_long[0]
 
-central_long = sum(all_long)/float(len(all_long))
-central_lat = sum(all_lat)/float(len(all_lat))
+central_long = sum(all_long) / float(len(all_long))
+central_lat = sum(all_lat) / float(len(all_lat))
 
-print('Initializing map')
-m = folium.Map(location=[central_lat,central_long],tiles="Stamen Toner",zoom_start=14.2) # Recommended map styles are "Stamen Terrain", "Stamen Toner"
+print("Initializing map")
+m = folium.Map(
+    location=[central_lat, central_long], tiles="Stamen Toner", zoom_start=14.2
+)  # Recommended map styles are "Stamen Terrain", "Stamen Toner"
 
-print('Plotting gpx data')
+print("Plotting gpx data")
 
 for activity in data:
     gpx_filename = activity
-    gpx_file = open(gpx_filename, 'r')
+    gpx_file = open(gpx_filename, "r")
     gpx = gpxpy.parse(gpx_file)
 
     for track in gpx.tracks:
@@ -93,30 +105,30 @@ for activity in data:
                 lat.append(point.latitude)
                 lon.append(point.longitude)
 
-    points = zip(lat,lon)
-    points = [item for item in zip(lat,lon)]
+    points = zip(lat, lon)
+    points = [item for item in zip(lat, lon)]
 
     folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
     lat = []
     lon = []
 
-print('Plotting csv data')
+print("Plotting csv data")
 color = "red"
 hr = []
 for activity in csvdata:
     csv_filename = activity
     csv_file = pd.read_csv(csv_filename)
     for i in range(len(csv_file)):
-        lat.append(csv_file['position_lat'][i])
-        lon.append(csv_file['position_long'][i])
-        hr.append(csv_file['heart_rate'][i])
-    points = zip(lat,lon)
-    points = [item for item in zip(lat,lon)]
+        lat.append(csv_file["position_lat"][i])
+        lon.append(csv_file["position_long"][i])
+        hr.append(csv_file["heart_rate"][i])
+    points = zip(lat, lon)
+    points = [item for item in zip(lat, lon)]
 
-    #color = []
-    #print('heart_rate',csv_file['heart_rate'])
-    #hr = hr / max(hr)
-    #for value in hr:
+    # color = []
+    # print('heart_rate',csv_file['heart_rate'])
+    # hr = hr / max(hr)
+    # for value in hr:
     #    if value < 0.2:
     #        color.append("darkred")
     #    elif value >= 0.2 and value < 0.4:
@@ -133,4 +145,4 @@ for activity in csvdata:
     lon = []
     hr = []
 
-m.save('heatmap.html')
+m.save("heatmap.html")
