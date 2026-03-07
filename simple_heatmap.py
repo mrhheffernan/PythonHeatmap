@@ -1,6 +1,7 @@
+import glob
+
 import gpxpy
 import matplotlib.pyplot as plt
-import glob
 
 gpx_list = glob.glob("*.gpx")
 
