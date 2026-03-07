@@ -1,10 +1,11 @@
 import csv
 import os
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # to install fitparse, run
 # sudo pip3 install -e git+https://github.com/dtcooper/python-fitparse#egg=python-fitparse
 import fitparse
-import pytz
 
 allowed_fields = [
     "timestamp",
@@ -21,8 +22,8 @@ allowed_fields = [
 ]
 required_fields = ["timestamp", "position_lat", "position_long", "altitude"]
 
-UTC = pytz.UTC
-CST = pytz.timezone("US/Central")
+UTC = timezone.utc
+CST = ZoneInfo("US/Central")
 
 
 def main():
@@ -55,7 +56,10 @@ def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
         for field in fields:
             if field.name in allowed_fields:
                 if field.name == "timestamp":
-                    mdata[field.name] = UTC.localize(field.value).astimezone(CST)
+                    ts_value = field.value
+                    if ts_value.tzinfo is None:
+                        ts_value = ts_value.replace(tzinfo=UTC)
+                    mdata[field.name] = ts_value.astimezone(CST)
                 else:
                     mdata[field.name] = field.value
         for rf in required_fields:

@@ -18,13 +18,13 @@ fig.add_axes(ax)
 for gpx_data in gpx_list:
     lat = []
     lon = []
-    gpx_file = open(gpx_data, "r")
-    gpx = gpxpy.parse(gpx_file)
-    for track in gpx.tracks:
-        for segment in track.segments:
-            for point in segment.points:
-                lat.append(point.latitude)
-                lon.append(point.longitude)
+    with open(gpx_data, "r") as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    lat.append(point.latitude)
+                    lon.append(point.longitude)
     plt.plot(lon, lat, color="deepskyblue", lw=0.8, alpha=0.8)
 # plt.savefig('simple_heatmap.png')
 plt.show()
