@@ -25,10 +25,16 @@ FIELDS_ALLOWED = [
 FIELDS_REQUIRED = ["timestamp", "position_lat", "position_long"]
 
 UTC = timezone.utc
-TZ = ZoneInfo("US/Central")
+TZ = ZoneInfo("US/Pacific")
 
 
 def write_to_csv(data: list[dict[str, Any]], output_path: str) -> None:
+    """Write extracted data fields from the .fit messages to file
+
+    Args:
+        data (list[dict[str, Any]]): Data from messages
+        output_path (str): Output path
+    """
     # write to csv
     with open(output_path, "w") as f:
         writer = csv.writer(f)
@@ -39,6 +45,15 @@ def write_to_csv(data: list[dict[str, Any]], output_path: str) -> None:
 
 
 def collect_data(filepath: str, tz: ZoneInfo = TZ) -> list[dict[str, Any]]:
+    """Collects data from the .fit file at filepath
+
+    Args:
+        filepath (str): Path to .fit file
+        tz (ZoneInfo, optional): Timezone identifier. Defaults to TZ.
+
+    Returns:
+        list[dict[str, Any]]: List of dicts containing relevant data from each message in the .fit
+    """
     # Parse the .fit file
     fitfile = fitparse.FitFile(
         filepath, data_processor=fitparse.StandardUnitsDataProcessor()
