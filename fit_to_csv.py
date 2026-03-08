@@ -1,10 +1,10 @@
+import argparse
 import csv
+import glob
 import os
-from datetime import datetime, timezone
+from datetime import timezone
 from zoneinfo import ZoneInfo
 
-# to install fitparse, run
-# sudo pip3 install -e git+https://github.com/dtcooper/python-fitparse#egg=python-fitparse
 import fitparse
 
 allowed_fields = [
@@ -24,10 +24,10 @@ allowed_fields = [
 required_fields = ["timestamp", "position_lat", "position_long"]
 
 UTC = timezone.utc
-CST = ZoneInfo("US/Central")
+TZ = ZoneInfo("US/Central")
 
 
-def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
+def write_fitfile_to_csv(fitfile, output_path: str, tz: ZoneInfo = TZ):
     messages = fitfile.messages
     data = []
     for m in messages:
@@ -43,7 +43,7 @@ def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
                     ts_value = field.value
                     if ts_value.tzinfo is None:
                         ts_value = ts_value.replace(tzinfo=UTC)
-                    mdata[field.name] = ts_value.astimezone(CST)
+                    mdata[field.name] = ts_value.astimezone(tz)
                 else:
                     mdata[field.name] = field.value
         for rf in required_fields:
@@ -52,20 +52,45 @@ def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
         if not skip:
             data.append(mdata)
     # write to csv
-    with open(output_file, "w") as f:
+    with open(output_path, "w") as f:
         writer = csv.writer(f)
         writer.writerow(allowed_fields)
         for entry in data:
             writer.writerow([str(entry.get(k, "")) for k in allowed_fields])
-    print("wrote %s" % output_file)
+    print("wrote %s" % output_path)
+
+
+def parse_args() -> argparse.Namespace:
+    args = argparse.ArgumentParser(description="Convert .fit to .csv")
+
+    args.add_argument(
+        "--dir",
+        help="Path to directory containing .fit files",
+        type=str,
+        default=os.getcwd(),
+    )
+    args.add_argument(
+        "--timezone",
+        help="Timezone for timestamps, e.g. 'US/Pacific'",
+        default="US/Pacific",
+    )
+    args.add_argument(
+        "--overwrite",
+        help="Overwrite any .csv files already converted from .fit",
+        action="store_true",
+    )
+
+    return args.parse_args()
 
 
 def main():
-    files = os.listdir()
-    fit_files = [file for file in files if file[-4:].lower() == ".fit"]
+    args = parse_args()
+
+    fit_files = glob.glob(args.dir + "/*.fit")
     for file in fit_files:
-        new_filename = file[:-4] + ".csv"
-        if os.path.exists(new_filename):
+        base_filename = file.removesuffix(".fit")
+        new_filename = base_filename + ".csv"
+        if not args.overwrite and os.path.exists(new_filename):
             # print('%s already exists. skipping.' % new_filename)
             continue
         fitfile = fitparse.FitFile(
@@ -73,7 +98,7 @@ def main():
         )
 
         print("converting %s" % file)
-        write_fitfile_to_csv(fitfile, new_filename)
+        write_fitfile_to_csv(fitfile, new_filename, tz=ZoneInfo(args.timezone))
     print("finished conversions")
 
 

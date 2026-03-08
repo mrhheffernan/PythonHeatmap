@@ -12,9 +12,7 @@ dependencies = [
     "matplotlib>=3.10.8",
     "numpy>=2.4.2",
     "pandas>=3.0.1",
+    "python-fitparse>=2.1.3",
     "pytz>=2026.1.post1",
     "selenium>=4.41.0",
 ]
-
-[tool.uv.sources]
-fitparse = { git = "https://github.com/dtcooper/python-fitparse" }
