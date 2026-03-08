@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
 
 def main():
     args = parse_args()
-    
+
     gpx_list = glob.glob(args.dir + "/*.gpx")
 
     fig = plt.figure(facecolor="0.05")
