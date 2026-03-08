@@ -1,12 +1,15 @@
 import argparse
 import glob
 import os
+from zoneinfo import ZoneInfo
 
 import folium
 import gpxpy
 import numpy as np
 import pandas as pd
 from geopy.geocoders import Nominatim
+
+from fit_to_csv import collect_data
 
 geolocator = Nominatim(user_agent="heatmap_app")
 
@@ -17,6 +20,11 @@ def parse_args() -> argparse.Namespace:
         "--dir",
         help="Path to direcotry with .fit, .gpx files to process for the heatmap",
         default=os.getcwd(),
+    )
+    args.add_argument(
+        "--timezone",
+        help="Timezone for timestamps, e.g. 'US/Pacific'",
+        default="US/Pacific",
     )
     args.add_argument(
         "--output_path",
@@ -36,13 +44,13 @@ def main():
     gpx_files = glob.glob(args.dir + "/*.gpx")
     fit_files = glob.glob(args.dir + "/*.fit")
 
-    if len(fit_files) != 0:
+    fit_data = []
+    if len(fit_files):
         print("Converting Garmin FIT files")
-        os.system("python fit_to_csv.py")
-        os.system("mkdir fit_files")
-        os.system("mv *.fit ./fit_files")
-
-    csvdata = glob.glob("*.csv")
+        for file in fit_files:
+            activity_data = collect_data(file, tz=ZoneInfo(args.timezone))
+            df_activity_data = pd.DataFrame(activity_data)
+            fit_data.append(df_activity_data)
 
     lat = []
     lon = []
@@ -73,13 +81,11 @@ def main():
         lon = []
         lat = []
 
-    for activity in csvdata:
-        csv_filename = activity
-        csv_file = pd.read_csv(csv_filename)
-
-        for i in range(len(csv_file)):
-            lat.append(csv_file["position_lat"][i])
-            lon.append(csv_file["position_long"][i])
+    for activity in fit_data:
+        for i in range(len(activity)):
+            # TODO: use extend and .values.to_list() and avoid the loop entirely
+            lat.append(activity["position_lat"][i])
+            lon.append(activity["position_long"][i])
 
         check1 = np.any(np.isclose(lat, lat_check, atol=0.5))
         check2 = np.any(np.isclose(lon, lon_check, atol=0.5))
@@ -129,14 +135,12 @@ def main():
     print("Plotting csv data")
     color = "red"
     hr = []
-    for activity in csvdata:
-        csv_filename = activity
-        csv_file = pd.read_csv(csv_filename)
-        for i in range(len(csv_file)):
-            lat.append(csv_file["position_lat"][i])
-            lon.append(csv_file["position_long"][i])
-            if "heart_rate" in csv_file.columns:
-                hr.append(csv_file["heart_rate"][i])
+    for activity in fit_data:
+        for i in range(len(activity)):
+            lat.append(activity["position_lat"][i])
+            lon.append(activity["position_long"][i])
+            if "heart_rate" in activity.columns:
+                hr.append(activity["heart_rate"][i])
         points = list(zip(lat, lon))
 
         folium.PolyLine(points, color=color, weight=2.5, opacity=0.5).add_to(m)
@@ -144,7 +148,7 @@ def main():
         lon = []
         hr = []
 
-    m.save("heatmap.html")
+    m.save(args.output_path)
 
 
 if __name__ == "__main__":
