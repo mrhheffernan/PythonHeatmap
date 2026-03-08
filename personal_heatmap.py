@@ -1,147 +1,98 @@
+import argparse
 import glob
 import os
+from zoneinfo import ZoneInfo
 
 import folium
 import gpxpy
 import numpy as np
 import pandas as pd
-from geopy.geocoders import Nominatim
 
-geolocator = Nominatim()
-location = geolocator.geocode(
-    "Montreal Quebec"
-)  # Change this to change location centering
-lat_check = float(location.raw["lat"])
-lon_check = float(location.raw["lon"])
+from fit_to_csv import collect_data
 
-data = glob.glob("*.gpx")
-fitdata = glob.glob("*.fit")
 
-if not len(fitdata) == 0:
-    print("Converting Garmin FIT files")
-    os.system("python fit_to_csv.py")
-    os.system("mkdir fit_files")
-    os.system("mv *.fit ./fit_files")
+def parse_args() -> argparse.Namespace:
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        "--dir",
+        help="Path to direcotry with .fit, .gpx files to process for the heatmap",
+        default=os.getcwd(),
+    )
+    args.add_argument(
+        "--timezone",
+        help="Timezone for timestamps, e.g. 'US/Pacific'",
+        default="US/Pacific",
+    )
+    args.add_argument(
+        "--output_path",
+        help="Path to write the heatmap .html to",
+        default="heatmap.html",
+    )
 
-csvdata = glob.glob("*.csv")
+    return args.parse_args()
 
-lat = []
-lon = []
 
-all_lat = []
-all_long = []
+def main():
+    args = parse_args()
 
-print("Loading data")
+    gpx_files = glob.glob(args.dir + "/*.gpx")
+    fit_files = glob.glob(args.dir + "/*.fit")
 
-for activity in data:
-    gpx_filename = activity
-    gpx_file = open(gpx_filename, "r")
-    gpx = gpxpy.parse(gpx_file)
+    fit_data = []
+    if len(fit_files):
+        print("Converting Garmin FIT files")
+        for file in fit_files:
+            activity_data = collect_data(file, tz=ZoneInfo(args.timezone))
+            df_activity_data = pd.DataFrame(activity_data)
+            fit_data.append(df_activity_data)
 
-    for track in gpx.tracks:
-        for segment in track.segments:
-            for point in segment.points:
-                lat.append(point.latitude)
-                lon.append(point.longitude)
+    all_lat = []
+    all_long = []
 
-    check1 = np.any(
-        np.isclose(lat, lat_check, atol=0.5)
-    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(
-        np.isclose(lon, lon_check, atol=0.5)
-    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
+    print("Loading data")
 
-    if check1 and check2:
+    for activity in gpx_files:
+        lon = []
+        lat = []
+
+        with open(activity, "r") as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    for point in segment.points:
+                        lat.append(point.latitude)
+                        lon.append(point.longitude)
+
         all_lat.append(lat)
         all_long.append(lon)
 
-    lon = []
-    lat = []
+    for activity in fit_data:
+        lat = activity["position_lat"].values.tolist()
+        lon = activity["position_long"].values.tolist()
 
-for activity in csvdata:
-    csv_filename = activity
-    csv_file = pd.read_csv(csv_filename)
-
-    for i in range(len(csv_file)):
-        lat.append(csv_file["position_lat"][i])
-        lon.append(csv_file["position_long"][i])
-
-    check1 = np.any(
-        np.isclose(lat, lat_check, atol=0.5)
-    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-    check2 = np.any(
-        np.isclose(lon, lon_check, atol=0.5)
-    )  # Change the tolerance 'atol' to include a larger or smaller area around the centering point
-
-    if check1 and check2:
         all_lat.append(lat)
         all_long.append(lon)
 
-    lon = []
-    lat = []
+    central_long = np.mean(np.array(all_long).flatten())
+    central_lat = np.mean(np.array(all_lat).flatten())
 
-all_lat = all_lat[0]
-all_long = all_long[0]
+    print("Initializing map")
+    m = folium.Map(
+        location=[central_lat, central_long], tiles="Cartodb Positron", zoom_start=14.2
+    )
 
-central_long = sum(all_long) / float(len(all_long))
-central_lat = sum(all_lat) / float(len(all_lat))
+    print("Plotting activities")
 
-print("Initializing map")
-m = folium.Map(
-    location=[central_lat, central_long], tiles="Stamen Toner", zoom_start=14.2
-)  # Recommended map styles are "Stamen Terrain", "Stamen Toner"
+    for i in range(len(all_lat)):
+        lat = all_lat[i]
+        lon = all_long[i]
+        points = list(zip(lat, lon))
 
-print("Plotting gpx data")
+        folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
 
-for activity in data:
-    gpx_filename = activity
-    gpx_file = open(gpx_filename, "r")
-    gpx = gpxpy.parse(gpx_file)
+    m.save(args.output_path)
 
-    for track in gpx.tracks:
-        for segment in track.segments:
-            for point in segment.points:
-                lat.append(point.latitude)
-                lon.append(point.longitude)
 
-    points = zip(lat, lon)
-    points = [item for item in zip(lat, lon)]
-
-    folium.PolyLine(points, color="red", weight=2.5, opacity=0.5).add_to(m)
-    lat = []
-    lon = []
-
-print("Plotting csv data")
-color = "red"
-hr = []
-for activity in csvdata:
-    csv_filename = activity
-    csv_file = pd.read_csv(csv_filename)
-    for i in range(len(csv_file)):
-        lat.append(csv_file["position_lat"][i])
-        lon.append(csv_file["position_long"][i])
-        hr.append(csv_file["heart_rate"][i])
-    points = zip(lat, lon)
-    points = [item for item in zip(lat, lon)]
-
-    # color = []
-    # print('heart_rate',csv_file['heart_rate'])
-    # hr = hr / max(hr)
-    # for value in hr:
-    #    if value < 0.2:
-    #        color.append("darkred")
-    #    elif value >= 0.2 and value < 0.4:
-    #        color.append("red")
-    #    elif value >= 0.4 and value < 0.6:
-    #        color.append("lightred")
-    #    elif value >= 0.6 and value < 0.8:
-    #        color.append("lightyellow")
-    #    elif value >= 0.6:
-    #        color.append("yellow")
-
-    folium.PolyLine(points, color=color, weight=2.5, opacity=0.5).add_to(m)
-    lat = []
-    lon = []
-    hr = []
-
-m.save("heatmap.html")
+if __name__ == "__main__":
+    main()

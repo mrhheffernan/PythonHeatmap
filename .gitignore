@@ -1,3 +1,5 @@
 *.gpx
 *.csv
 *.fit
+__pycache__/
+*.lock
