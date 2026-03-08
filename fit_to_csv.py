@@ -27,23 +27,6 @@ UTC = timezone.utc
 CST = ZoneInfo("US/Central")
 
 
-def main():
-    files = os.listdir()
-    fit_files = [file for file in files if file[-4:].lower() == ".fit"]
-    for file in fit_files:
-        new_filename = file[:-4] + ".csv"
-        if os.path.exists(new_filename):
-            # print('%s already exists. skipping.' % new_filename)
-            continue
-        fitfile = fitparse.FitFile(
-            file, data_processor=fitparse.StandardUnitsDataProcessor()
-        )
-
-        print("converting %s" % file)
-        write_fitfile_to_csv(fitfile, new_filename)
-    print("finished conversions")
-
-
 def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
     messages = fitfile.messages
     data = []
@@ -75,6 +58,23 @@ def write_fitfile_to_csv(fitfile, output_file="test_output.csv"):
         for entry in data:
             writer.writerow([str(entry.get(k, "")) for k in allowed_fields])
     print("wrote %s" % output_file)
+
+
+def main():
+    files = os.listdir()
+    fit_files = [file for file in files if file[-4:].lower() == ".fit"]
+    for file in fit_files:
+        new_filename = file[:-4] + ".csv"
+        if os.path.exists(new_filename):
+            # print('%s already exists. skipping.' % new_filename)
+            continue
+        fitfile = fitparse.FitFile(
+            file, data_processor=fitparse.StandardUnitsDataProcessor()
+        )
+
+        print("converting %s" % file)
+        write_fitfile_to_csv(fitfile, new_filename)
+    print("finished conversions")
 
 
 if __name__ == "__main__":
