@@ -68,12 +68,8 @@ def main():
         all_long.append(lon)
 
     for activity in fit_data:
-        lon = []
-        lat = []
-        for i in range(len(activity)):
-            # TODO: use extend and .values.to_list() and avoid the loop entirely
-            lat.append(float(activity["position_lat"][i]))
-            lon.append(float(activity["position_long"][i]))
+        lat = activity["position_lat"].values.tolist()
+        lon = activity["position_long"].values.tolist()
 
         all_lat.append(lat)
         all_long.append(lon)
