@@ -16,11 +16,12 @@ allowed_fields = [
     "altitude",
     "enhanced_speed",
     "speed",
+    "avg_heart_rate",
     "heart_rate",
     "cadence",
     "fractional_cadence",
 ]
-required_fields = ["timestamp", "position_lat", "position_long", "altitude"]
+required_fields = ["timestamp", "position_lat", "position_long"]
 
 UTC = timezone.utc
 CST = ZoneInfo("US/Central")
